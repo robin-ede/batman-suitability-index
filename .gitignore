@@ -1,0 +1,10 @@
+/data/
+/output/
+.env
+__pycache__/
+*.pyc
+.DS_Store
+.ruff_cache/
+.venv/
+.claude/
+claudedocs/

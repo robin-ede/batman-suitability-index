@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Batman Suitability Index — Chicago</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css">
+  <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- ─── SCROLL PROGRESS ─── -->
+  <div id="scroll-progress"><div id="scroll-bar"></div></div>
+
+  <!-- ─── MAP PANEL (persistent) ─── -->
+  <aside id="map-panel">
+    <div id="map"></div>
+    <div id="legend-panel">
+      <strong>Layer Legend</strong>
+      <div id="legend-bsi" class="legend-row"><span class="legend-dot" style="background:#ffcc00"></span>BSI Score</div>
+      <div id="legend-crime" class="legend-row hidden"><span class="legend-dot" style="background:#ef4444"></span>Crime Gi* Z-Score</div>
+      <div id="legend-police" class="legend-row hidden"><span class="legend-dot" style="background:#3b82f6"></span>Police Station</div>
+      <div id="legend-industrial" class="legend-row"><span class="legend-dot" style="background:rgba(107,114,128,0.4)"></span>Industrial Zones</div>
+    </div>
+  </aside>
+
+  <!-- ─── NARRATIVE PANEL ─── -->
+  <main id="narrative">
+
+    <!-- 1. HERO -->
+    <section id="s-hero" class="chapter" data-map="overview">
+      <div class="hero-inner">
+        <span class="badge">GIS — DAEN 489</span>
+        <h1>The Batman Suitability Index</h1>
+        <p class="subtitle">Locating the optimal strategic base of operations for Gotham's defender within the city of Chicago.</p>
+        <div class="team">By Bob Cao, Robin Ede, Mauricio Moran</div>
+        <div class="stats-row">
+          <div class="stat"><span class="stat-num" id="stat-crimes">0</span><span class="stat-label">Crimes Analyzed</span></div>
+          <div class="stat"><span class="stat-num" id="stat-hexes">0</span><span class="stat-label">Hex Grid Cells</span></div>
+          <div class="stat"><span class="stat-num" id="stat-hotspots">0</span><span class="stat-label">Hot Spots</span></div>
+        </div>
+        <div class="scroll-hint">Scroll to begin analysis</div>
+      </div>
+    </section>
+
+    <!-- 2. PROBLEM -->
+    <section id="s-problem" class="chapter" data-map="overview">
+      <div class="card">
+        <h2>The Problem</h2>
+        <p>Batman needs a new Batcave — but not just any location. We need a site that balances three tactical imperatives:</p>
+        <div class="three-pillars">
+          <div class="pillar">
+            <span class="pillar-icon">🎯</span>
+            <h3>Rapid Access to Crime Hotspots</h3>
+            <p>Statistically significant clusters where intervention matters most, identified via Getis-Ord Gi*.</p>
+          </div>
+          <div class="pillar">
+            <span class="pillar-icon">🏙️</span>
+            <h3>High Population Density</h3>
+            <p>Maintaining a strong urban presence within Chicago's most densely populated zones.</p>
+          </div>
+          <div class="pillar">
+            <span class="pillar-icon">🕵️</span>
+            <h3>Strategic Seclusion</h3>
+            <p>Near enough to monitor police infrastructure, yet hidden within industrial corridors for base secrecy.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. DATA & PIPELINE -->
+    <section id="s-data" class="chapter" data-map="overview">
+      <div class="card">
+        <h2>Data Sources & Pipeline</h2>
+        <p>We integrate three large-scale spatial datasets through an automated Python ETL pipeline.</p>
+        <div class="source-pills">
+          <span class="pill">Chicago Data Portal (Socrata API)</span>
+          <span class="pill">US Census TIGER/Line + Census API</span>
+          <span class="pill">OpenStreetMap / Overpass API</span>
+        </div>
+        <div class="pipeline-diagram">
+          <div class="pipe-node">01 Fetch</div>
+          <div class="pipe-arrow">→</div>
+          <div class="pipe-node">02 Process</div>
+          <div class="pipe-arrow">→</div>
+          <div class="pipe-node">03 Analyze</div>
+          <div class="pipe-arrow">→</div>
+          <div class="pipe-node active">04 Visualize</div>
+        </div>
+        <p class="caption">All sources reprojected to <code>NAD83 / Illinois East (EPSG:2263)</code> for metric distance calculations.</p>
+      </div>
+    </section>
+
+    <!-- 4. METHODOLOGY -->
+    <section id="s-method" class="chapter" data-map="overview">
+      <div class="card">
+        <h2>Methodology & BSI Score</h2>
+        <p>The Batman Suitability Index (BSI) is computed for every H3 hex cell in Chicago by weighting four normalized components:</p>
+        <div class="formula-box">
+          <strong>BSI</strong> =
+          <span class="weight-c">0.35</span> · Crime Gi* +
+          <span class="weight-p">0.30</span> · Pop Density +
+          <span class="weight-s">0.20</span> · Police Sweet Spot +
+          <span class="weight-i">0.15</span> · Industrial
+        </div>
+        <div id="chart-weights-container"><canvas id="chart-weights"></canvas></div>
+        <p class="caption"><strong>Getis-Ord Gi*</strong> distinguishes true spatial clusters from random noise. Hot spots signal where crime is concentrated beyond chance.</p>
+      </div>
+    </section>
+
+    <!-- 6. INTERACTIVE ANALYSIS MAP -->
+    <section id="s-map-intro" class="chapter" data-map="overview">
+      <div class="card map-intro-card">
+        <h2>Interactive Analysis Map</h2>
+        <p>The map on the right shows your results. Toggle layers below or keep scrolling — the narrative will guide you through each analysis layer.</p>
+        <div class="layer-buttons">
+          <button class="layer-btn active" data-layer="bsi">BSI Score</button>
+          <button class="layer-btn" data-layer="crime">Crime Gi*</button>
+          <button class="layer-btn" data-layer="police">Police</button>
+          <button class="layer-btn" data-layer="industrial">Industrial</button>
+          <button class="layer-btn" data-layer="top5">Top 5 Batcaves</button>
+          <button class="layer-btn" data-layer="all">All</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. TOP 5 BATCAVE CANDIDATES -->
+    <section id="s-top5-intro" class="chapter" data-map="top5-all">
+      <div class="card">
+        <h2>Top 5 Batcave Locations</h2>
+        <p>The five highest-scoring hex cells are ranked below. Scroll through each candidate — the map will fly to its location.</p>
+      </div>
+    </section>
+
+    <section id="s-candidate-1" class="chapter candidate-chapter" data-map="fly" data-rank="1">
+      <div class="card candidate-card">
+        <div class="candidate-header">
+          <span class="rank">#1</span>
+          <div>
+            <h3>Highest BSI Score</h3>
+            <div class="candidate-meta" id="meta-1"></div>
+          </div>
+        </div>
+        <div class="mini-chart-wrap"><canvas id="chart-cand-1"></canvas></div>
+      </div>
+    </section>
+
+    <section id="s-candidate-2" class="chapter candidate-chapter" data-map="fly" data-rank="2">
+      <div class="card candidate-card">
+        <div class="candidate-header">
+          <span class="rank">#2</span>
+          <div>
+            <h3>Runner-Up</h3>
+            <div class="candidate-meta" id="meta-2"></div>
+          </div>
+        </div>
+        <div class="mini-chart-wrap"><canvas id="chart-cand-2"></canvas></div>
+      </div>
+    </section>
+
+    <section id="s-candidate-3" class="chapter candidate-chapter" data-map="fly" data-rank="3">
+      <div class="card candidate-card">
+        <div class="candidate-header">
+          <span class="rank">#3</span>
+          <div>
+            <h3>Third Place</h3>
+            <div class="candidate-meta" id="meta-3"></div>
+          </div>
+        </div>
+        <div class="mini-chart-wrap"><canvas id="chart-cand-3"></canvas></div>
+      </div>
+    </section>
+
+    <section id="s-candidate-4" class="chapter candidate-chapter" data-map="fly" data-rank="4">
+      <div class="card candidate-card">
+        <div class="candidate-header">
+          <span class="rank">#4</span>
+          <div>
+            <h3>Fourth Place</h3>
+            <div class="candidate-meta" id="meta-4"></div>
+          </div>
+        </div>
+        <div class="mini-chart-wrap"><canvas id="chart-cand-4"></canvas></div>
+      </div>
+    </section>
+
+    <section id="s-candidate-5" class="chapter candidate-chapter" data-map="fly" data-rank="5">
+      <div class="card candidate-card">
+        <div class="candidate-header">
+          <span class="rank">#5</span>
+          <div>
+            <h3>Fifth Place</h3>
+            <div class="candidate-meta" id="meta-5"></div>
+          </div>
+        </div>
+        <div class="mini-chart-wrap"><canvas id="chart-cand-5"></canvas></div>
+      </div>
+    </section>
+
+    <!-- 7. REPRODUCIBILITY & ETHICS -->
+    <section id="s-ethics" class="chapter" data-map="overview">
+      <div class="card">
+        <h2>Reproducibility & Ethics</h2>
+        <p>Our entire pipeline is automated. Run the analysis from raw data to final maps with one command:</p>
+        <div class="code-block">
+          <code>python run.py</code>
+        </div>
+        <p>We use publicly available, open-licensed data. Crime information is aggregated and anonymized. Results are intentionally framed to avoid stigmatizing neighborhoods or making unsupported causal claims.</p>
+        <div class="footer-nav">
+          <a href="#s-hero">↑ Back to top</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ─── DATA SCRIPTS ─── -->
+  <script src="js/data/hex_data.js"></script>
+  <script src="js/data/police_stations.js"></script>
+  <script src="js/data/industrial_zones.js"></script>
+  <script src="js/data/chicago_boundary.js"></script>
+  <script src="js/data/top5.js"></script>
+  <script src="js/data/stats.js"></script>
+
+  <!-- ─── APP SCRIPTS ─── -->
+  <script src="js/map.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/scroll.js"></script>
+</body>
+</html>

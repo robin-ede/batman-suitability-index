@@ -1,0 +1,10 @@
+geopandas
+shapely
+h3
+libpysal
+esda
+folium
+matplotlib
+requests
+pyarrow
+python-dotenv
