@@ -143,6 +143,17 @@ p strong, p b { color: var(--text); }
 /* ─── HERO ─── */
 #s-hero { text-align: center; }
 .hero-inner { max-width: 520px; }
+
+.hero-portrait {
+  display: block;
+  width: 224px;
+  height: 224px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 0 auto 1.25rem;
+  border: 2px solid var(--accent);
+  box-shadow: 0 4px 28px rgba(250, 204, 21, 0.24);
+}
 .badge {
   display: inline-block;
   background: rgba(250,204,21,0.10);
