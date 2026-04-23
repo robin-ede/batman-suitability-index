@@ -6,6 +6,9 @@
 
   // ── COLOUR HELPERS ──────────────────────────────────────────────
   const viridis  = ['#440154', '#31688e', '#35b779', '#fde724'];
+  // Warm sequential palette for pop density (distinct from BSI viridis
+  // and from the diverging blue-red used for Crime Gi*).
+  const warmSequential = ['#1f2937', '#7c2d12', '#ea580c', '#fed7aa'];
 
   function hexToRgb(hex) {
     return hex.match(/\w\w/g).map(x => parseInt(x, 16));
@@ -39,8 +42,10 @@
   // compute ranges for colour scales
   const allBsi = hexFeatures.map(f => f.properties.bsi).filter(v => v != null);
   const allGi  = hexFeatures.map(f => f.properties.gi_z).filter(v => v != null);
+  const allPop = hexFeatures.map(f => f.properties.pop_density_km2).filter(v => v != null);
   const bsiMin = Math.min(...allBsi), bsiMax = Math.max(...allBsi);
   const giAbsMax = Math.max(1.0, ...allGi.map(Math.abs));
+  const popMin = Math.min(...allPop), popMax = Math.max(...allPop);
 
   // ── INITIALISE MAP ──────────────────────────────────────────────
   const map = L.map('map', {
@@ -73,6 +78,11 @@
     const color = getInterpolatedColor(t, 0, 1, ['#2166ac','#67a9cf','#ef8a62','#b2182b']);
     return { fillColor: color, color: 'rgba(0,0,0,0.25)', weight: 0.4, fillOpacity: 0.75 };
   }
+  function styleHexPop(f) {
+    const val = f.properties.pop_density_km2 || 0;
+    const color = getInterpolatedColor(val, popMin, popMax, warmSequential);
+    return { fillColor: color, color: 'rgba(0,0,0,0.25)', weight: 0.4, fillOpacity: 0.75 };
+  }
   function onEachHex(f, layer) {
     const p = f.properties;
     const label = p.hotspot === 'Hot Spot' ? 'Crime Hot Spot'
@@ -93,6 +103,7 @@
 
   const hexLayerBSI  = L.geoJSON(hexFeatures, { style: styleHexBSI, onEachFeature: onEachHex });
   const hexLayerCrime = L.geoJSON(hexFeatures, { style: styleHexCrime, onEachFeature: onEachHex });
+  const hexLayerPop   = L.geoJSON(hexFeatures, { style: styleHexPop, onEachFeature: onEachHex });
 
   // ── BOUNDARY ────────────────────────────────────────────────────
   const boundaryLayer = L.geoJSON(boundaryFeatures, {
@@ -142,16 +153,17 @@
 
   // ── LEGEND UPDATES ──────────────────────────────────────────────
   function updateLegend(activeMode) {
-    const ids = ['legend-bsi', 'legend-crime', 'legend-police', 'legend-industrial'];
+    const ids = ['legend-bsi', 'legend-crime', 'legend-pop', 'legend-police', 'legend-industrial'];
     ids.forEach(id => document.getElementById(id)?.classList.add('hidden'));
 
     const show = {
       bsi:        ['legend-bsi'],
       crime:      ['legend-crime'],
+      pop:        ['legend-pop'],
       police:     ['legend-police'],
       industrial: ['legend-industrial'],
       top5:       ['legend-bsi'],
-      all:        ['legend-bsi', 'legend-crime', 'legend-police', 'legend-industrial'],
+      all:        ['legend-bsi', 'legend-police', 'legend-industrial'],
     };
     (show[activeMode] || ['legend-bsi']).forEach(id => {
       const el = document.getElementById(id);
@@ -167,6 +179,7 @@
   const ALL_LAYERS = {
     hexBSI: hexLayerBSI,
     hexCrime: hexLayerCrime,
+    hexPop: hexLayerPop,
     police: policeLayer,
     industrial: industrialLayer,
     top5: top5Layer,
@@ -176,6 +189,7 @@
   const MODE_LAYERS = {
     bsi:        ['hexBSI', 'boundary'],
     crime:      ['hexCrime', 'boundary'],
+    pop:        ['hexPop', 'boundary'],
     police:     ['boundary', 'police'],
     industrial: ['industrial', 'boundary'],
     top5:       ['hexBSI', 'boundary', 'top5'],
@@ -206,6 +220,7 @@
   const MODES = {
     bsi:        () => applyMode('bsi'),
     crime:      () => applyMode('crime'),
+    pop:        () => applyMode('pop'),
     police:     () => applyMode('police'),
     industrial: () => applyMode('industrial'),
     top5:       () => applyMode('top5'),
