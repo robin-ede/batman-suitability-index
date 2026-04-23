@@ -22,11 +22,42 @@
     <div id="map"></div>
     <div id="legend-panel">
       <strong>Layer Legend</strong>
-      <div id="legend-bsi" class="legend-row"><span class="legend-dot" style="background:#ffcc00"></span>BSI Score</div>
-      <div id="legend-crime" class="legend-row hidden"><span class="legend-dot" style="background:#ef4444"></span>Crime Gi* Z-Score</div>
-      <div id="legend-pop" class="legend-row hidden"><span class="legend-dot" style="background:#ea580c"></span>Population Density</div>
-      <div id="legend-police" class="legend-row hidden"><span class="legend-dot" style="background:#3b82f6"></span>Police Station</div>
-      <div id="legend-industrial" class="legend-row"><span class="legend-dot" style="background:rgba(107,114,128,0.4)"></span>Industrial Zones</div>
+
+      <div id="legend-bsi" class="legend-row legend-continuous">
+        <div class="legend-title">BSI Score</div>
+        <div class="legend-gradient" style="background:linear-gradient(to right,#440154,#31688e,#35b779,#fde724);"></div>
+        <div class="legend-scale">
+          <span id="legend-bsi-min">—</span>
+          <span id="legend-bsi-max">—</span>
+        </div>
+      </div>
+
+      <div id="legend-crime" class="legend-row legend-continuous hidden">
+        <div class="legend-title">Crime Gi* Z-Score</div>
+        <div class="legend-gradient" style="background:linear-gradient(to right,#2166ac,#67a9cf,#ef8a62,#b2182b);"></div>
+        <div class="legend-scale legend-scale-three">
+          <span>Cold Spot</span>
+          <span>Not Sig.</span>
+          <span>Hot Spot</span>
+        </div>
+      </div>
+
+      <div id="legend-pop" class="legend-row legend-continuous hidden">
+        <div class="legend-title">Pop Density</div>
+        <div class="legend-gradient" style="background:linear-gradient(to right,#1f2937,#7c2d12,#ea580c,#fed7aa);"></div>
+        <div class="legend-scale">
+          <span id="legend-pop-min">—</span>
+          <span id="legend-pop-max">—</span>
+        </div>
+      </div>
+
+      <div id="legend-police" class="legend-row legend-categorical hidden">
+        <span class="legend-dot" style="background:#3b82f6"></span>Police Station
+      </div>
+
+      <div id="legend-industrial" class="legend-row legend-categorical">
+        <span class="legend-dot" style="background:rgba(107,114,128,0.55)"></span>Industrial Zones
+      </div>
     </div>
   </aside>
 

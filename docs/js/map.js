@@ -47,6 +47,20 @@
   const giAbsMax = Math.max(1.0, ...allGi.map(Math.abs));
   const popMin = Math.min(...allPop), popMax = Math.max(...allPop);
 
+  // Populate continuous-legend min/max labels from the computed ranges.
+  function formatPop(n) {
+    if (n >= 1000) return (n / 1000).toFixed(n >= 10000 ? 0 : 1) + 'k/km²';
+    return Math.round(n) + '/km²';
+  }
+  const bsiMinEl = document.getElementById('legend-bsi-min');
+  const bsiMaxEl = document.getElementById('legend-bsi-max');
+  const popMinEl = document.getElementById('legend-pop-min');
+  const popMaxEl = document.getElementById('legend-pop-max');
+  if (bsiMinEl) bsiMinEl.textContent = bsiMin.toFixed(2);
+  if (bsiMaxEl) bsiMaxEl.textContent = bsiMax.toFixed(2);
+  if (popMinEl) popMinEl.textContent = formatPop(popMin);
+  if (popMaxEl) popMaxEl.textContent = formatPop(popMax);
+
   // ── INITIALISE MAP ──────────────────────────────────────────────
   const map = L.map('map', {
     center: [41.83, -87.68],
