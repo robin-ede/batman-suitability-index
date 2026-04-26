@@ -26,7 +26,7 @@ BSI = 0.35 × Crime Gi*  +  0.30 × Pop Density  +  0.20 × Police Sweet Spot  +
 ## Methodology
 
 1. **Ingest:** Chicago crime (Socrata), census tracts + population (US Census TIGER/Line + API), industrial land use (OpenStreetMap / Overpass), police stations (OSM).
-2. **Reproject** all sources to **NAD83 / Illinois East (EPSG:2263)** for metric distance calculations.
+2. **Reproject** all sources to **NAD83 / Illinois East (EPSG:26971)** for metric distance calculations.
 3. **Aggregate** to an **H3 hexagonal grid** so disparate geometries (points, polygons, tracts) can be compared across equal-area cells.
 4. **Identify hot spots** with the **Getis-Ord Gi\*** statistic via `PySAL` (`esda.getisord.G_Local`, 999 permutations, α = 0.05). A cell is classified **Hot Spot** when its pseudo p-value is below 0.05 *and* its Gi\* z-score is positive, meaning the cell and its neighbors together are measurably above average.
 5. **Normalize** each of the four components to [0, 1] and compute the weighted BSI.
@@ -77,9 +77,10 @@ The four numbered scripts (`01_fetch.py` … `04_visualize.py`) can also be run 
 ```
 .
 ├── 01_fetch.py            # Socrata + Census + Overpass downloads
-├── 02_process.py          # Clean, reproject to EPSG:2263, H3-aggregate
+├── 02_process.py          # Clean, reproject to EPSG:26971, H3-aggregate
 ├── 03_analyze.py          # Getis-Ord Gi*, normalize, compute BSI
 ├── 04_visualize.py        # Static matplotlib + Folium maps
+├── generate_figures.py    # Individual publication-quality figures (300 DPI PNGs)
 ├── export_for_web.py      # Analyzed outputs → docs/js/data/*.js
 ├── config.py              # Weights, CRS, thresholds, paths
 ├── run.py                 # One-command pipeline runner
